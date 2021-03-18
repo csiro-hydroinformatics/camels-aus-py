@@ -1,12 +1,14 @@
 # camels_aus code documentation
 
-You are likely to need only to look at the `wrapper` module to manage your resources.
+You are likely to need only to look at the `repository` module to manage your resources.
 
 ## Repository module
 
-::: camels_aus.repository
+TODO: fix `mkdocstrings.extension: Error reading page`
+<!-- ::: camels_aus.repository -->
 
 ## Conventions module
 
-::: camels_aus.conventions
+TODO: fix `mkdocstrings.extension: Error reading page`
+<!-- ::: camels_aus.conventions -->
 

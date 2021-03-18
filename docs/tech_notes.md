@@ -69,8 +69,7 @@ cd mkd/
 mkdocs new .
 ```
 
-`mamba install -c conda-forge mkdocs-material mkdocstrings`
-`mamba install -c conda-forge mkdocs-material-extensions`
+`mamba install -c conda-forge mkdocs-material mkdocstrings mkdocs-material-extensions`
 
 ## Troubleshooting
 
