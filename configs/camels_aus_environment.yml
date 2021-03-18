@@ -4,3 +4,5 @@ channels:
 dependencies: 
   - pandas
   - xarray 
+  - scipy # to have netcdf read/write
+  - geopandas

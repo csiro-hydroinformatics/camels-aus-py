@@ -1,0 +1,15 @@
+site_name: camels-aus
+
+theme:
+  name: "readthedocs"
+  # name: "material"
+
+plugins:
+  - search
+  - mkdocstrings
+
+nav:
+  - Home: index.md
+  - Code Documentation: code-reference.md
+  - Appendix:
+      - Tech Notes: tech_notes.md

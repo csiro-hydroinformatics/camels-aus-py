@@ -2,7 +2,11 @@
 
 You are likely to need only to look at the `wrapper` module to manage your resources.
 
-## Wrapper module
+## Repository module
 
-::: camels_aus.wrapper
+::: camels_aus.repository
+
+## Conventions module
+
+::: camels_aus.conventions
 

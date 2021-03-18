@@ -35,6 +35,8 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 REQUIREMENTS = ['pandas',
                 'numpy',
+                'scipy', # to have netcdf read/write
+                'geopandas',
                 # 'cftime',
                 'xarray']
 

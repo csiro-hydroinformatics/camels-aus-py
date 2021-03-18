@@ -14,13 +14,13 @@ Note to self: as of Jan 2019 also using github_jm\didactique\doc\know_how.md to 
 ## Code
 
 ```sh
-cd ${HOME}/src/github_jm/camels-aus-py/efts-io
+cd ${HOME}/src/github/camels-aus-py
 ```
 
 ```sh
 source ${HOME}/anaconda3/bin/activate
 #my_env_name=efts
-my_env_name=pt
+my_env_name=camels
 ```
 
 ```sh
@@ -31,7 +31,7 @@ conda install -c conda-forge wheel twine six pytest
 
 ```sh
 conda activate ${my_env_name}
-cd ${HOME}/src/github_jm/camels-aus-py/efts-io
+cd ${HOME}/src/github_jm/camels-aus-py
 mkdir -p dist
 rm dist/*
 python3 setup.py sdist bdist_wheel

@@ -1,4 +1,6 @@
 pandas
 numpy
 xarray
+scipy # to have netcdf read/write
+geopandas
 # cftime

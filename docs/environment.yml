@@ -3,6 +3,8 @@ channels:
 dependencies:
   - xarray
   - pandas
+  - scipy # to have netcdf read/write
+  - geopandas
   - mkdocs
   - mkdocs-material
   - mkdocs-material-extensions
