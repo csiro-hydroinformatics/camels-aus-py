@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+dependencies:
+  - xarray
+  - pandas
+  - mkdocs
+  - mkdocs-material
+  - mkdocs-material-extensions
+  - mkdocstrings

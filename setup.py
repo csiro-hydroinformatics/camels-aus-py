@@ -35,7 +35,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 REQUIREMENTS = ['pandas',
                 'numpy',
-                'cftime',
+                # 'cftime',
                 'xarray']
 
 TEST_REQUIREMENTS = ['pytest',

@@ -1,0 +1,6 @@
+name: camels
+channels:
+  - conda-forge
+dependencies: 
+  - pandas
+  - xarray 

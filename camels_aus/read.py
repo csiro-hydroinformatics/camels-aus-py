@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Dict, List, Tuple
 import pandas as pd
 import numpy as np
 import xarray as xr
@@ -37,13 +37,20 @@ def _mk_oned_var(dim_name, dim_values, var_values:np.ndarray):
                 coords={dim_name: dim_values}, 
                 dims = [dim_name])
 
-def load_csv_stations_metadata(filename:str) -> Tuple:
+def _all_in(names, a_set):
+    return np.all([x in a_set for x in names])
+
+def load_csv_stations_columns(filename:str, colnames:List[str]=None, station_id_varname=STATION_ID_VARNAME) -> Dict[str,np.ndarray]:
     x = pd.read_csv(filename)
-    station_ids = column_values(x, STATION_ID_VARNAME)
-    station_names = _mk_oned_var(STATION_ID_VARNAME, station_ids, column_values(x, STATION_NAME_VARNAME))
-    drainage_division = _mk_oned_var(STATION_ID_VARNAME, station_ids, column_values(x, DRAINAGE_DIVISION_VARNAME))
-    river_region = _mk_oned_var(STATION_ID_VARNAME, station_ids, column_values(x, RIVER_REGION_VARNAME))
-    notes = _mk_oned_var(STATION_ID_VARNAME, station_ids, column_values(x, NOTES_VARNAME))
-    return (station_names, drainage_division, river_region, notes)
+    assert _all_in(colnames, x.columns)
+    assert station_id_varname in x.columns
+    station_ids = column_values(x, station_id_varname)
+    y = [(colname, _mk_oned_var(station_id_varname, station_ids, column_values(x, colname))) for colname in colnames]
+    return dict(y)
+
+def load_csv_stations_metadata(filename:str) -> Dict[str,np.ndarray]:
+    return load_csv_stations_columns(filename, 
+        colnames= [STATION_NAME_VARNAME, DRAINAGE_DIVISION_VARNAME, RIVER_REGION_VARNAME, NOTES_VARNAME],
+        station_id_varname=STATION_ID_VARNAME)
 
 
