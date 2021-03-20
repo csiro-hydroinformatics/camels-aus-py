@@ -7,9 +7,11 @@ theme:
 plugins:
   - search
   - mkdocstrings
+  - mkdocs-jupyter
 
 nav:
   - Home: index.md
   - Code Documentation: code-reference.md
+  - Sample notebook: examples/camels-aus-introduction.ipynb
   - Appendix:
       - Tech Notes: tech_notes.md

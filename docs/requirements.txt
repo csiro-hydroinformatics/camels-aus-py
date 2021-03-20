@@ -6,6 +6,7 @@ geopandas
 mkdocs-material
 mkdocs-material-extensions
 mkdocstrings
+mkdocs-jupyter
 # added by readthedocs anyway:
 mock
 pillow
