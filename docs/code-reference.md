@@ -5,7 +5,8 @@ You are likely to need only to look at the `repository` module to manage your re
 ## Repository module
 
 TODO: fix `mkdocstrings.extension: Error reading page`
-<!-- ::: camels_aus.repository -->
+
+::: camels_aus.repository
 
 ## Conventions module
 
