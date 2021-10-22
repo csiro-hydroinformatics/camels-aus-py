@@ -7,8 +7,25 @@ import xarray as xr
 import os
 import geopandas as gpd
 
-from .conventions import *
-from .read import *
+from .conventions import (check_camels_aus_version, 
+    other_attributes_names,
+    anthropogenicinfluences_attributes_names,
+    landcover_attributes_names,
+    topography_attributes_names,
+    geology_attributes_names,
+)
+from .read import (load_csv_stations_columns, load_csv_stations_metadata, load_csv_stations_tseries, load_streamflow_gaugingstats, negative_is_missing,
+    load_boundary_area,
+    load_geology_attributes,
+    load_topography_attributes,
+    load_landcover_attributes,
+    load_anthropogenicinfluences_attributes,
+    load_other_attributes,
+    STREAMFLOW_MMD_VARNAME,
+    STREAMFLOW_QUALITYCODES_VARNAME,
+    PRECIPITATION_AWAP_VARNAME,
+    ET_MORTON_ACTUAL_SILO_VARNAME,
+)
 
 
 def download_camels_aus(local_directory:str, version='1.0') -> None:
@@ -24,8 +41,7 @@ def download_camels_aus(local_directory:str, version='1.0') -> None:
     import requests
     from zipfile import ZipFile
     os.makedirs(local_directory, exist_ok=True)
-    if version != '1.0':
-        raise Exception("Only version 1.0 is available as of 2021-03")
+    check_camels_aus_version(version)
     zipfiles = [
         "01_id_name_metadata.zip",
         "02_location_boundary_area.zip",
@@ -50,7 +66,7 @@ def download_camels_aus(local_directory:str, version='1.0') -> None:
             fn_url = url_root + fn
             r = requests.get(fn_url) # create HTTP response object 
             print("INFO: Dowloading {0} ...".format(fn_url), flush=True)
-            with open(local_fn,'wb') as f:         
+            with open(local_fn,'wb') as f:
                 f.write(r.content) 
             print("INFO: Dowloaded {0}".format(fn_url))
 
@@ -65,8 +81,7 @@ def download_camels_aus(local_directory:str, version='1.0') -> None:
                 zipObj.extractall(path=local_directory)
             print("INFO: Extracted {0}".format(local_fn))
 
-    if version != '1.0':
-        raise Exception("Only version 1.0 is available as of 2021-03")
+    check_camels_aus_version(version)
 
 def _check_fileexists(fn):
     if not os.path.exists(fn):
@@ -96,8 +111,7 @@ class CamelsAus:
             FileNotFoundError: One of the files in the dataset is not found
             Exception: Unhandled version
         """
-        if version != '1.0':
-            raise Exception("Only version 1.0 is available as of 2021-03")
+        check_camels_aus_version(version)
         if not os.path.exists(directory):
             raise FileNotFoundError("Directory {0} not found".format(directory))
         id_name_metadata_dir = os.path.join(directory, '01_id_name_metadata')
@@ -108,9 +122,26 @@ class CamelsAus:
         location_boundary_area_dir = os.path.join(directory, '02_location_boundary_area')
         location_boundary_area_fn = os.path.join(location_boundary_area_dir, 'location_boundary_area.csv')
         _check_fileexists(location_boundary_area_fn)
+        _location_boundary_area = load_boundary_area(location_boundary_area_fn)
 
-        location_boundary_colnames = ["lat_outlet","long_outlet","lat_centroid","long_centroid","map_zone","catchment_area","nested_status","next_station_ds","num_nested_within"]
-        _location_boundary_area = load_csv_stations_columns(location_boundary_area_fn, colnames = location_boundary_colnames)
+        attributes_dir = os.path.join(directory, '04_attributes')
+        catchmentattributes_01_geology_fn = os.path.join(attributes_dir, 'CatchmentAttributes_01_Geology&Soils.csv')
+        catchmentattributes_02_topography_fn = os.path.join(attributes_dir, 'CatchmentAttributes_02_Topography&Geometry.csv')
+        catchmentattributes_03_landcover_fn = os.path.join(attributes_dir, 'CatchmentAttributes_03_LandCover&Vegetation.csv')
+        catchmentattributes_04_anthropogenicinfluences_fn = os.path.join(attributes_dir, 'CatchmentAttributes_04_AnthropogenicInfluences.csv')
+        catchmentattributes_05_other_fn = os.path.join(attributes_dir, 'CatchmentAttributes_05_Other.csv')
+        # 'Landcover_timeseries.xlsx'
+        _check_fileexists(catchmentattributes_01_geology_fn)
+        _check_fileexists(catchmentattributes_02_topography_fn)
+        _check_fileexists(catchmentattributes_03_landcover_fn)
+        _check_fileexists(catchmentattributes_04_anthropogenicinfluences_fn)
+        _check_fileexists(catchmentattributes_05_other_fn)
+        
+        _geology_attributes = load_geology_attributes(catchmentattributes_01_geology_fn)
+        _topography_attributes = load_topography_attributes(catchmentattributes_02_topography_fn)
+        _landcover_attributes = load_landcover_attributes(catchmentattributes_03_landcover_fn)
+        _anthropogenicinfluences_attributes = load_anthropogenicinfluences_attributes(catchmentattributes_04_anthropogenicinfluences_fn)
+        _other_attributes = load_other_attributes(catchmentattributes_05_other_fn)
 
         # streamflow_mmd.csv
         streamflow_dir = os.path.join(directory, '03_streamflow')
@@ -119,40 +150,43 @@ class CamelsAus:
         _streamflow_mmd = load_csv_stations_tseries(streamflow_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
 
         # streamflow_GaugingStats.csv
-        streamflow_GaugingStats_fn = os.path.join(streamflow_dir, 'streamflow_GaugingStats.csv')
-        _check_fileexists(streamflow_GaugingStats_fn)
-        streamflow_GaugingStats_colnames = ["start_date","end_date","prop_missing_data",
-            "q_uncert_num_curves","q_uncert_n","q_uncert_q10","q_uncert_q10_upper",
-            "q_uncert_q10_lower","q_uncert_q50","q_uncert_q50_upper","q_uncert_q50_lower",
-            "q_uncert_q90","q_uncert_q90_upper","q_uncert_q90_lower"]
-        _streamflow_GaugingStats = load_csv_stations_columns(streamflow_GaugingStats_fn, colnames = streamflow_GaugingStats_colnames)
+        streamflow_gauging_stats_fn = os.path.join(streamflow_dir, 'streamflow_GaugingStats.csv')
+        _check_fileexists(streamflow_gauging_stats_fn)
+        _streamflow_gauging_stats = load_streamflow_gaugingstats(streamflow_gauging_stats_fn)
 
         # streamflow_MLd.csv
         # streamflow_MLd_inclInfilled.csv
         # streamflow_QualityCodes.csv
-        streamflow_QualityCodes_fn = os.path.join(streamflow_dir, 'streamflow_QualityCodes.csv')
-        _check_fileexists(streamflow_QualityCodes_fn)
-        streamflow_QualityCodes = load_csv_stations_tseries(streamflow_QualityCodes_fn, dtype='str')
+        streamflow_quality_codes_fn = os.path.join(streamflow_dir, 'streamflow_QualityCodes.csv')
+        _check_fileexists(streamflow_quality_codes_fn)
+        streamflow_quality_codes = load_csv_stations_tseries(streamflow_quality_codes_fn, dtype='str')
         # streamflow_signatures.csv
 
         hydrometeorology_dir = os.path.join(directory, '05_hydrometeorology')
         
         precipitation_timeseries_dir = os.path.join(hydrometeorology_dir, '01_precipitation_timeseries')
-        precipitation_AWAP_fn = os.path.join(precipitation_timeseries_dir, 'precipitation_AWAP.csv')
-        _check_fileexists(precipitation_AWAP_fn)
-        precipitation_AWAP = load_csv_stations_tseries(precipitation_AWAP_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
+        precipitation_awap_fn = os.path.join(precipitation_timeseries_dir, 'precipitation_AWAP.csv')
+        _check_fileexists(precipitation_awap_fn)
+        precipitation_awap = load_csv_stations_tseries(precipitation_awap_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
 
         evap_timeseries_dir = os.path.join(hydrometeorology_dir, '02_EvaporativeDemand_timeseries')
-        et_morton_actual_SILO_fn = os.path.join(evap_timeseries_dir, 'et_morton_actual_SILO.csv')
-        _check_fileexists(et_morton_actual_SILO_fn)
-        et_morton_actual_SILO = load_csv_stations_tseries(et_morton_actual_SILO_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
+        et_morton_actual_silo_fn = os.path.join(evap_timeseries_dir, 'et_morton_actual_SILO.csv')
+        _check_fileexists(et_morton_actual_silo_fn)
+        et_morton_actual_silo = load_csv_stations_tseries(et_morton_actual_silo_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
 
         d = dict(_id_name_metadata)
-        d.update({'streamflow_mmd': _streamflow_mmd})
-        d.update({'streamflow_QualityCodes': streamflow_QualityCodes})
-        d.update({'precipitation_AWAP': precipitation_AWAP})
-        d.update({'et_morton_actual_SILO': et_morton_actual_SILO})
+        d.update({STREAMFLOW_MMD_VARNAME : _streamflow_mmd})
+        d.update({STREAMFLOW_QUALITYCODES_VARNAME : streamflow_quality_codes})
+        d.update({PRECIPITATION_AWAP_VARNAME : precipitation_awap})
+        d.update({ET_MORTON_ACTUAL_SILO_VARNAME : et_morton_actual_silo})
+
+        d.update(_streamflow_gauging_stats)
         d.update(_location_boundary_area)
+        d.update(_geology_attributes)
+        d.update(_topography_attributes)
+        d.update(_landcover_attributes)
+        d.update(_anthropogenicinfluences_attributes)
+        d.update(_other_attributes)
 
         self._ds = xr.Dataset( data_vars = d )
 
@@ -166,8 +200,38 @@ class CamelsAus:
         """ Camels aggregated xarray dataset  """
         return self._ds
 
+    @property
+    def daily_data(self) -> xr.DataArray:
+        """ All daily time series in the dataset """
+        return self._ds[[STREAMFLOW_MMD_VARNAME,
+            STREAMFLOW_QUALITYCODES_VARNAME,
+            PRECIPITATION_AWAP_VARNAME,
+            ET_MORTON_ACTUAL_SILO_VARNAME,
+            ]]
+
+    @property 
+    def other_attributes(self) -> xr.DataArray: 
+        return self._ds[other_attributes_names()]
+
+    @property 
+    def anthropogenicinfluences_attributes(self) -> xr.DataArray: 
+        return self._ds[anthropogenicinfluences_attributes_names()]
+
+    @property 
+    def landcover_attributes(self) -> xr.DataArray: 
+        return self._ds[landcover_attributes_names()]
+
+    @property 
+    def topography_attributes(self) -> xr.DataArray: 
+        return self._ds[topography_attributes_names()]
+
+    @property 
+    def geology_attributes(self) -> xr.DataArray: 
+        return self._ds[geology_attributes_names()]
+
     def load_from_cached_files(self, directory:str, version:str='1.0') -> None:
         raise NotImplemented("Not yet implemented")
 
     def save_to_cached_files(self, directory:str, version:str='1.0') -> None:
         raise NotImplemented("Not yet implemented")
+

@@ -55,6 +55,26 @@ def check_index_found(index_id, identifier, dimension_id):
     if index_id is None:
         raise Exception( str.format("identifier '{0}' not found in the dimension '{1}'", identifier, dimension_id))
 
+def metadata_names(): return [STATION_NAME_VARNAME, DRAINAGE_DIVISION_VARNAME, RIVER_REGION_VARNAME, NOTES_VARNAME]
+def other_attributes_names(): return ["pop_mean", "pop_max", "pop_gt_1", "pop_gt_10", "erosivity", "anngro_mega", "anngro_meso", "anngro_micro", "gromega_seas", "gromeso_seas", "gromicro_seas", "npp_ann", "npp_1", "npp_2", "npp_3", "npp_4", "npp_5", "npp_6", "npp_7", "npp_8", "npp_9", "npp_10", "npp_11", "npp_12"]
+def anthropogenicinfluences_attributes_names(): return ["distupdamw", "impound_fac", "flow_div_fac", "leveebank_fac", "infrastruc_fac", "settlement_fac", "extract_ind_fac", "landuse_fac", "catchment_di", "flow_regime_di", "river_di"]
+def landcover_attributes_names(): return ["lc01_extracti", "lc03_waterbo", "lc04_saltlak", "lc05_irrcrop", "lc06_irrpast", "lc07_irrsuga", "lc08_rfcropp", "lc09_rfpastu", "lc10_rfsugar", "lc11_wetlands", "lc14_tussclo", "lc15_alpineg", "lc16_openhum", "lc18_opentus", "lc19_shrbsca", "lc24_shrbden", "lc25_shrbope", "lc31_forclos", "lc32_foropen", "lc33_woodope", "lc34_woodspa", "lc35_urbanar", "prop_forested", "nvis_grasses_n", "nvis_grasses_e", "nvis_forests_n", "nvis_forests_e", "nvis_shrubs_n", "nvis_shrubs_e", "nvis_woodlands_n", "nvis_woodlands_e", "nvis_bare_n", "nvis_bare_e", "nvis_nodata_n", "nvis_nodata_e"]
+def topography_attributes_names(): return ["elev_min", "elev_max", "elev_mean", "elev_range", "mean_slope_pct", "upsdist", "strdensity", "strahler", "elongratio", "relief", "reliefratio", "mrvbf_prop_0", "mrvbf_prop_1", "mrvbf_prop_2", "mrvbf_prop_3", "mrvbf_prop_4", "mrvbf_prop_5", "mrvbf_prop_6", "mrvbf_prop_7", "mrvbf_prop_8", "mrvbf_prop_9", "confinement"]
+def geology_attributes_names(): return ["geol_prim", "geol_prim_prop", "geol_sec", "geol_sec_prop", "unconsoldted", "igneous", "silicsed", "carbnatesed", "othersed", "metamorph", "sedvolc", "oldrock", "claya", "clayb", "sanda", "solum_thickness", "ksat", "solpawhc"]
+def location_boundary_names(): return ["lat_outlet","long_outlet","lat_centroid","long_centroid","map_zone","catchment_area","nested_status","next_station_ds","num_nested_within"]
+
+def streamflow_gaugingstats_names(): return ["start_date","end_date","prop_missing_data",
+    "q_uncert_num_curves","q_uncert_n","q_uncert_q10","q_uncert_q10_upper",
+    "q_uncert_q10_lower","q_uncert_q50","q_uncert_q50_upper","q_uncert_q50_lower",
+    "q_uncert_q90","q_uncert_q90_upper","q_uncert_q90_lower"]
+
+
+STREAMFLOW_MMD_VARNAME = 'streamflow_mmd'
+STREAMFLOW_QUALITYCODES_VARNAME = 'streamflow_QualityCodes'
+PRECIPITATION_AWAP_VARNAME = 'precipitation_AWAP'
+ET_MORTON_ACTUAL_SILO_VARNAME = 'et_morton_actual_SILO'
+
+
 XR_UNITS_ATTRIB_ID: str = 'units'
 """key for the units attribute on xarray DataArray objects"""
 
@@ -96,5 +116,6 @@ def copy_xr_units(src: xr.DataArray, target: xr.DataArray):
         target.attrs[XR_UNITS_ATTRIB_ID] = src.attrs[XR_UNITS_ATTRIB_ID]
 
 
-
-
+def check_camels_aus_version(version):
+    if version != '1.0':
+        raise ValueError("camels-aus-py does not (yet) support version {version} of the CAMELS-AUS the dataset. Only version 1.0 of the data")

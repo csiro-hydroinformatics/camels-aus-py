@@ -63,7 +63,48 @@ def load_csv_stations_columns(filename:str, colnames:List[str]=None, station_id_
 
 def load_csv_stations_metadata(filename:str) -> Dict[str,np.ndarray]:
     return load_csv_stations_columns(filename, 
-        colnames= [STATION_NAME_VARNAME, DRAINAGE_DIVISION_VARNAME, RIVER_REGION_VARNAME, NOTES_VARNAME],
+        colnames= metadata_names(),
         station_id_varname=STATION_ID_VARNAME)
+
+def load_boundary_area(filename:str) -> Dict[str,np.ndarray]:
+    return load_csv_stations_columns(filename, 
+        colnames= location_boundary_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_other_attributes(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= other_attributes_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_anthropogenicinfluences_attributes(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= anthropogenicinfluences_attributes_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_landcover_attributes(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= landcover_attributes_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_topography_attributes(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= topography_attributes_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_geology_attributes(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= geology_attributes_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_geology_attributes(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= geology_attributes_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
+def load_streamflow_gaugingstats(filename):
+    return load_csv_stations_columns(filename, 
+        colnames= streamflow_gaugingstats_names(),
+        station_id_varname=STATION_ID_VARNAME)
+
 
 
