@@ -1,7 +1,7 @@
 """Access arrangements to the CAMELS-AUS dataset
 """
 
-from typing import List
+from typing import Callable, List
 import numpy as np
 import xarray as xr
 import os
@@ -25,6 +25,10 @@ from .read import (load_csv_stations_columns, load_csv_stations_metadata, load_c
     STREAMFLOW_QUALITYCODES_VARNAME,
     PRECIPITATION_AWAP_VARNAME,
     ET_MORTON_ACTUAL_SILO_VARNAME,
+    SOLARRAD_AWAP_VARNAME,
+    TMAX_AWAP_VARNAME,
+    TMIN_AWAP_VARNAME,
+    VPRP_AWAP_VARNAME,
 )
 
 
@@ -145,9 +149,7 @@ class CamelsAus:
 
         # streamflow_mmd.csv
         streamflow_dir = os.path.join(directory, '03_streamflow')
-        streamflow_fn = os.path.join(streamflow_dir, 'streamflow_mmd.csv')
-        _check_fileexists(streamflow_fn)
-        _streamflow_mmd = load_csv_stations_tseries(streamflow_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
+        _streamflow_mmd = self.load_time_series(streamflow_dir, 'streamflow_mmd.csv', negative_is_missing, 'mm', np.float32)
 
         # streamflow_GaugingStats.csv
         streamflow_gauging_stats_fn = os.path.join(streamflow_dir, 'streamflow_GaugingStats.csv')
@@ -157,28 +159,40 @@ class CamelsAus:
         # streamflow_MLd.csv
         # streamflow_MLd_inclInfilled.csv
         # streamflow_QualityCodes.csv
-        streamflow_quality_codes_fn = os.path.join(streamflow_dir, 'streamflow_QualityCodes.csv')
-        _check_fileexists(streamflow_quality_codes_fn)
-        streamflow_quality_codes = load_csv_stations_tseries(streamflow_quality_codes_fn, dtype='str')
+        streamflow_quality_codes = self.load_time_series(streamflow_dir, 'streamflow_QualityCodes.csv', dtype='str')
         # streamflow_signatures.csv
 
         hydrometeorology_dir = os.path.join(directory, '05_hydrometeorology')
-        
+
         precipitation_timeseries_dir = os.path.join(hydrometeorology_dir, '01_precipitation_timeseries')
-        precipitation_awap_fn = os.path.join(precipitation_timeseries_dir, 'precipitation_AWAP.csv')
-        _check_fileexists(precipitation_awap_fn)
-        precipitation_awap = load_csv_stations_tseries(precipitation_awap_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
+        precipitation_awap = self.load_time_series(precipitation_timeseries_dir, 'precipitation_AWAP.csv', negative_is_missing, 'mm', np.float32)
 
         evap_timeseries_dir = os.path.join(hydrometeorology_dir, '02_EvaporativeDemand_timeseries')
-        et_morton_actual_silo_fn = os.path.join(evap_timeseries_dir, 'et_morton_actual_SILO.csv')
-        _check_fileexists(et_morton_actual_silo_fn)
-        et_morton_actual_silo = load_csv_stations_tseries(et_morton_actual_silo_fn, is_missing=negative_is_missing, units='mm', dtype=np.float32)
+        et_morton_actual_silo = self.load_time_series(evap_timeseries_dir, 'et_morton_actual_SILO.csv', negative_is_missing, 'mm', np.float32)
+
+        other_hydromet_dir = os.path.join(hydrometeorology_dir, '03_Other')
+        other_hydromet_awap_dir = os.path.join(other_hydromet_dir, 'AWAP')
+        other_hydromet_silo_dir = os.path.join(other_hydromet_dir, 'SILO')
+
+        # solarrad_AWAP.csv
+        # tmax_AWAP.csv
+        # tmin_AWAP.csv
+        # vprp_AWAP.csv
+        solarrad_awap = self.load_time_series(other_hydromet_awap_dir, 'solarrad_AWAP.csv', negative_is_missing, 'MJ/m^2', np.float32)
+        tmax_awap = self.load_time_series(other_hydromet_awap_dir, 'tmax_AWAP.csv', negative_is_missing, '°C', np.float32)
+        tmin_awap = self.load_time_series(other_hydromet_awap_dir, 'tmin_AWAP.csv', negative_is_missing, '°C', np.float32)
+        vprp_awap = self.load_time_series(other_hydromet_awap_dir, 'vprp_AWAP.csv', negative_is_missing, 'hPa', np.float32)
 
         d = dict(_id_name_metadata)
         d.update({STREAMFLOW_MMD_VARNAME : _streamflow_mmd})
         d.update({STREAMFLOW_QUALITYCODES_VARNAME : streamflow_quality_codes})
         d.update({PRECIPITATION_AWAP_VARNAME : precipitation_awap})
         d.update({ET_MORTON_ACTUAL_SILO_VARNAME : et_morton_actual_silo})
+
+        d.update({SOLARRAD_AWAP_VARNAME: solarrad_awap})
+        d.update({TMAX_AWAP_VARNAME: tmax_awap})
+        d.update({TMIN_AWAP_VARNAME: tmin_awap})
+        d.update({VPRP_AWAP_VARNAME: vprp_awap})
 
         d.update(_streamflow_gauging_stats)
         d.update(_location_boundary_area)
@@ -195,6 +209,12 @@ class CamelsAus:
         _check_fileexists(boundaries_fn)
         self.boundaries = gpd.read_file(filename=boundaries_fn)
 
+    def load_time_series(self, directory, short_fn, is_missing:Callable[[np.ndarray], np.ndarray]= None, units:str=None, dtype=None) -> xr.DataArray:
+        full_fn = os.path.join(directory, short_fn)
+        _check_fileexists(full_fn)
+        tseries = load_csv_stations_tseries(full_fn, is_missing=is_missing, units=units, dtype=dtype)
+        return tseries
+
     @property
     def data(self) -> xr.Dataset:
         """ Camels aggregated xarray dataset  """
@@ -207,7 +227,11 @@ class CamelsAus:
             STREAMFLOW_QUALITYCODES_VARNAME,
             PRECIPITATION_AWAP_VARNAME,
             ET_MORTON_ACTUAL_SILO_VARNAME,
-            ]]
+            SOLARRAD_AWAP_VARNAME, 
+            TMAX_AWAP_VARNAME, 
+            TMIN_AWAP_VARNAME, 
+            VPRP_AWAP_VARNAME, 
+        ]]
 
     @property 
     def other_attributes(self) -> xr.DataArray: 

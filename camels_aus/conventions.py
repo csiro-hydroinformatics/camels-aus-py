@@ -74,6 +74,10 @@ STREAMFLOW_QUALITYCODES_VARNAME = 'streamflow_QualityCodes'
 PRECIPITATION_AWAP_VARNAME = 'precipitation_AWAP'
 ET_MORTON_ACTUAL_SILO_VARNAME = 'et_morton_actual_SILO'
 
+SOLARRAD_AWAP_VARNAME = 'solarrad_awap'
+TMAX_AWAP_VARNAME = 'tmax_awap'
+TMIN_AWAP_VARNAME = 'tmin_awap'
+VPRP_AWAP_VARNAME = 'vprp_awap'
 
 XR_UNITS_ATTRIB_ID: str = 'units'
 """key for the units attribute on xarray DataArray objects"""
