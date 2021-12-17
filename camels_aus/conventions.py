@@ -57,8 +57,7 @@ def get_default_dim_order():
     ]
 
 
-def check_index_found(index_id, identifier, dimension_id):
-    # return isinstance(index_id, np.int64)
+def check_index_found(index_id, identifier: str, dimension_id: str):
     if index_id is None:
         raise ValueError(
             str.format(
