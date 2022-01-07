@@ -12,6 +12,11 @@ CAMELS-AUS is the Australian edition of the Catchment Attributes and Meteorology
 
 ![Loading CAMELS-AUS from a notebook](./docs/img/rapid_camels_load.png "Loading CAMELS-AUS from a notebook")
 
+## Release notes
+
+* v0.5: support loading more series and catchment attributes.
+* v0.4: load minimal series for typical rainfall-runoff modelling
+
 ## License
 
 BSD-3 (see [License](https://github.com/csiro-hydroinformatics/camels-aus-py/blob/master/LICENSE))
@@ -30,7 +35,7 @@ Using a conda environment is recommended. To create a new environment:
 cd ${HOME}/tmp
 wget https://raw.githubusercontent.com/csiro-hydroinformatics/camels-aus-py/main/configs/camels_aus_environment.yml
 my_env_name=camels
-onda env create -n $my_env_name -f ./camels_aus_environment.yml
+conda env create -n $my_env_name -f ./camels_aus_environment.yml
 conda activate $my_env_name 
 ```
 

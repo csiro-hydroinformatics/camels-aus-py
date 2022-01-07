@@ -1,8 +1,6 @@
-# refcount tech notes
+# camels-aus related tech notes
 
 **These are notes for the package maintainer(s)**. Most users can ignore them.
-
-Note to self: as of Jan 2019 also using github_jm\didactique\doc\know_how.md to log the exploratory and release processes around `refcount`
 
 ## Release steps
 
@@ -19,15 +17,16 @@ cd ${HOME}/src/github/camels-aus-py
 
 ```sh
 source ${HOME}/anaconda3/bin/activate
-#my_env_name=efts
 my_env_name=camels
 ```
 
 ```sh
 conda create --name ${my_env_name} python=3.9
 conda activate ${my_env_name}
-conda install -c conda-forge wheel twine six pytest 
+conda install -c conda-forge wheel twine six 
 ```
+
+TODO: `conda install -c conda-forge pytest coverage`, but the unit tests from R efts have not been ported/adapted yet..
 
 ```sh
 conda activate ${my_env_name}
